@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  webrtc-vlm-app:
+    build: .
+    ports:
+      - "3000:3000"
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - MODE=${MODE:-server}
+      - PORT=3000
+      - SIGNALING_PORT=8080
+    volumes:
+      - ./models:/app/models
+      - ./bench:/app/bench
+      - ./metrics:/app/metrics
+    networks:
+      - webrtc-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - webrtc-vlm-app
+    networks:
+      - webrtc-network
+    restart: unless-stopped
+
+networks:
+  webrtc-network:
+    driver: bridge
+
+volumes:
+  models:
+  metrics:

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>WebRTC VLM Detection - Phone</title>
+    <link rel="stylesheet" href="src/styles/phone.css">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+    <div id="phone-app">
+        <!-- Header -->
+        <header class="phone-header">
+            <h1>VLM Detection</h1>
+            <div class="connection-status">
+                <span id="phone-connection-status" class="status-indicator disconnected">●</span>
+                <span id="phone-status-text">Connecting...</span>
+            </div>
+        </header>
+
+        <!-- Camera Section -->
+        <main class="camera-section">
+            <div class="camera-container">
+                <video id="local-video" autoplay playsinline muted></video>
+                <canvas id="phone-overlay-canvas"></canvas>
+                
+                <!-- Camera Controls -->
+                <div class="camera-controls">
+                    <button id="start-camera" class="btn-primary">Start Camera</button>
+                    <button id="switch-camera" class="btn-secondary" disabled>Switch</button>
+                    <button id="toggle-torch" class="btn-secondary" disabled>Flash</button>
+                </div>
+                
+                <!-- Camera Info -->
+                <div class="camera-info">
+                    <div class="info-row">
+                        <span class="info-label">Resolution:</span>
+                        <span id="phone-resolution">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">FPS:</span>
+                        <span id="phone-fps">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Latency:</span>
+                        <span id="phone-latency">-</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Settings Panel -->
+        <section class="settings-panel">
+            <div class="settings-header">
+                <h3>Camera Settings</h3>
+                <button id="toggle-settings" class="btn-icon">⚙️</button>
+            </div>
+            <div id="settings-content" class="settings-content hidden">
+                <div class="setting-group">
+                    <label for="resolution-select">Resolution:</label>
+                    <select id="resolution-select">
+                        <option value="320x240">320×240</option>
+                        <option value="640x480" selected>640×480</option>
+                        <option value="1280x720">1280×720</option>
+                        <option value="1920x1080">1920×1080</option>
+                    </select>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="fps-select">Target FPS:</label>
+                    <select id="fps-select">
+                        <option value="10">10 FPS</option>
+                        <option value="15" selected>15 FPS</option>
+                        <option value="24">24 FPS</option>
+                        <option value="30">30 FPS</option>
+                    </select>
+                </div>
+                
+                <div class="setting-group">
+                    <label for="quality-select">Quality:</label>
+                    <select id="quality-select">
+                        <option value="low">Low (Fast)</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High (Slow)</option>
+                    </select>
+                </div>
+                
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="show-overlay" checked>
+                        Show Detection Overlay
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="auto-focus" checked>
+                        Auto Focus
+                    </label>
+                </div>
+            </div>
+        </section>
+
+        <!-- Status Messages -->
+        <div id="phone-messages" class="messages-container">
+            <!-- Dynamic messages will be inserted here -->
+        </div>
+
+        <!-- Debug Info (Hidden by default) -->
+        <div id="phone-debug" class="debug-info hidden">
+            <h4>Debug Information</h4>
+            <div class="debug-stats">
+                <div class="debug-stat">
+                    <span class="debug-label">Frames Sent:</span>
+                    <span id="frames-sent">0</span>
+                </div>
+                <div class="debug-stat">
+                    <span class="debug-label">Data Rate:</span>
+                    <span id="data-rate">0 KB/s</span>
+                </div>
+                <div class="debug-stat">
+                    <span class="debug-label">Connection:</span>
+                    <span id="connection-type">-</span>
+                </div>
+            </div>
+            <button id="toggle-debug-phone" class="btn-small">Hide Debug</button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="phone-loading" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p id="phone-loading-message">Initializing camera...</p>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="error-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Error</h3>
+            <p id="error-message">An error occurred</p>
+            <div class="modal-actions">
+                <button id="error-retry" class="btn-primary">Retry</button>
+                <button id="error-dismiss" class="btn-secondary">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permission Modal -->
+    <div id="permission-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Camera Permission Required</h3>
+            <p>This app needs access to your camera to stream video for object detection.</p>
+            <div class="modal-actions">
+                <button id="grant-permission" class="btn-primary">Grant Permission</button>
+                <button id="permission-help" class="btn-secondary">Help</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="src/phone.js"></script>
+</body>
+</html>

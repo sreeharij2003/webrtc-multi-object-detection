@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC VLM Detection - Desktop</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <h1 class="title">WebRTC VLM Detection</h1>
+                <div class="status-indicators">
+                    <div class="status-item">
+                        <span class="status-label">Mode:</span>
+                        <span id="mode-indicator" class="status-value">Loading...</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Connection:</span>
+                        <span id="connection-status" class="status-value disconnected">Disconnected</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">FPS:</span>
+                        <span id="fps-counter" class="status-value">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="container">
+                <!-- Connection Section -->
+                <section class="connection-section">
+                    <div class="connection-card">
+                        <h2>Connect Your Phone</h2>
+                        <div class="qr-container">
+                            <div id="qr-code" class="qr-code">
+                                <div class="loading-spinner">Generating QR Code...</div>
+                            </div>
+                            <div class="connection-info">
+                                <p>Scan this QR code with your phone's camera or visit:</p>
+                                <div class="url-display">
+                                    <input type="text" id="phone-url" readonly>
+                                    <button id="copy-url" class="btn-secondary">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Video Section -->
+                <section class="video-section">
+                    <div class="video-container">
+                        <div class="video-wrapper">
+                            <video id="remote-video" autoplay playsinline muted></video>
+                            <canvas id="overlay-canvas"></canvas>
+                            <div class="video-controls">
+                                <button id="toggle-detection" class="btn-primary">Start Detection</button>
+                                <button id="toggle-fullscreen" class="btn-secondary">Fullscreen</button>
+                            </div>
+                        </div>
+                        <div class="video-info">
+                            <div class="info-item">
+                                <span class="info-label">Resolution:</span>
+                                <span id="video-resolution">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Latency:</span>
+                                <span id="latency-display">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Detections:</span>
+                                <span id="detection-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Metrics Section -->
+                <section class="metrics-section">
+                    <div class="metrics-card">
+                        <h3>Performance Metrics</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-item">
+                                <span class="metric-label">End-to-End Latency</span>
+                                <div class="metric-values">
+                                    <span class="metric-value" id="e2e-median">-</span>
+                                    <span class="metric-unit">ms (median)</span>
+                                </div>
+                                <div class="metric-values">
+                                    <span class="metric-value" id="e2e-p95">-</span>
+                                    <span class="metric-unit">ms (P95)</span>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Processing FPS</span>
+                                <div class="metric-values">
+                                    <span class="metric-value" id="processing-fps">-</span>
+                                    <span class="metric-unit">fps</span>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Bandwidth</span>
+                                <div class="metric-values">
+                                    <span class="metric-value" id="uplink-bw">-</span>
+                                    <span class="metric-unit">kbps ↑</span>
+                                </div>
+                                <div class="metric-values">
+                                    <span class="metric-value" id="downlink-bw">-</span>
+                                    <span class="metric-unit">kbps ↓</span>
+                                </div>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">System</span>
+                                <div class="metric-values">
+                                    <span class="metric-value" id="cpu-usage">-</span>
+                                    <span class="metric-unit">% CPU</span>
+                                </div>
+                                <div class="metric-values">
+                                    <span class="metric-value" id="memory-usage">-</span>
+                                    <span class="metric-unit">MB RAM</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="metrics-actions">
+                            <button id="reset-metrics" class="btn-secondary">Reset Metrics</button>
+                            <button id="export-metrics" class="btn-secondary">Export JSON</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Debug Section -->
+                <section class="debug-section">
+                    <div class="debug-card">
+                        <h3>Debug Information</h3>
+                        <div class="debug-controls">
+                            <button id="toggle-debug" class="btn-secondary">Show Debug</button>
+                            <button id="clear-logs" class="btn-secondary">Clear Logs</button>
+                        </div>
+                        <div id="debug-panel" class="debug-panel hidden">
+                            <div class="debug-tabs">
+                                <button class="debug-tab active" data-tab="logs">Logs</button>
+                                <button class="debug-tab" data-tab="webrtc">WebRTC</button>
+                                <button class="debug-tab" data-tab="detection">Detection</button>
+                            </div>
+                            <div class="debug-content">
+                                <div id="debug-logs" class="debug-tab-content active">
+                                    <pre id="log-output"></pre>
+                                </div>
+                                <div id="debug-webrtc" class="debug-tab-content">
+                                    <pre id="webrtc-stats"></pre>
+                                </div>
+                                <div id="debug-detection" class="debug-tab-content">
+                                    <pre id="detection-info"></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner large"></div>
+            <p id="loading-message">Initializing...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
