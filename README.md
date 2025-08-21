@@ -329,3 +329,4 @@ MIT License - see LICENSE file for details.
 - Real-time model switching
 - Advanced frame interpolation
 - Mobile app with native WebRTC
+"# webrtc-multi-object-detection" 
